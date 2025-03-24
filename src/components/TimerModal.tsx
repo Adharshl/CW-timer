@@ -4,6 +4,7 @@ import { useTimerStore } from '../store/useTimerStore';
 import { validateTimerForm } from '../utils/validation';
 import { Timer } from '../types/timer';
 import { toast } from 'sonner';
+import Button from './Button';
 
 interface TimerModalProps {
     isOpen: boolean;
@@ -98,9 +99,11 @@ export const TimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose, timer }
                         <Clock className="w-5 h-5 text-blue-600" />
                         <h2 className="text-xl font-semibold">{isEdit ? 'Edit Timer' : 'Add New Timer'}</h2>
                     </div>
-                    <button onClick={handleClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                        <X className="w-5 h-5" />
-                    </button>
+                    <Button
+                        onClick={handleClose}
+                        variant='outline'
+                        label={<X className="w-5 h-5" />}
+                    />
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -128,8 +131,16 @@ export const TimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose, timer }
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4 border-t">
-                        <button type="button" onClick={handleClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">Cancel</button>
-                        <button type="submit" className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors bg-blue-600 hover:bg-blue-700'`} >{isEdit ? 'Save Changes' : 'Add Timer'}</button>
+                        <Button
+                            label={'Cancel'}
+                            variant="tertiary"
+                            onClick={handleClose}
+                        />
+                        <Button
+                            label={isEdit ? 'Save Changes' : 'Add Timer'}
+                            variant="primary"
+                            type='submit'
+                        />
                     </div>
                 </form>
             </div>
