@@ -17,13 +17,13 @@ interface TimerItemProps {
 export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
   const { toggleTimer, deleteTimer, updateTimer, restartTimer } = useTimerStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const intervalRef = useRef<number | null>(null);
+  const intervalRefs = useRef<Map<string, number>>(new Map());
   const timerAudio = TimerAudio.getInstance();
   const hasEndedRef = useRef(false);
 
   useEffect(() => {
-    if (timer.isRunning) {
-      intervalRef.current = window.setInterval(() => {
+    if (timer.isRunning && !intervalRefs.current.has(timer.id)) {
+      const intervalId = window.setInterval(() => {
         updateTimer(timer.id);
 
         if (timer.remainingTime <= 1 && !hasEndedRef.current) {
@@ -34,15 +34,23 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
             duration: 5000,
             action: {
               label: 'Dismiss',
-              onClick: () => { timerAudio.stop() },
+              onClick: () => timerAudio.stop(),
             },
           });
         }
       }, 1000);
+
+      intervalRefs.current.set(timer.id, intervalId);
     }
 
-    return () => clearInterval(intervalRef.current!);
-  }, [timer.isRunning, timer.id, timer.remainingTime, timer.title, timerAudio, updateTimer]);
+    return () => {
+      const intervalId = intervalRefs.current.get(timer.id);
+      if (!timer.isRunning && intervalId) {
+        clearInterval(intervalId);
+        intervalRefs.current.delete(timer.id);
+      }
+    };
+  }, [timer.isRunning, timer.id]);  // **Remove timer.remainingTime from dependencies**
 
   const handleRestart = () => {
     hasEndedRef.current = false;

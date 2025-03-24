@@ -27,7 +27,7 @@ export const TimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose, timer }
         seconds: false,
     });
 
-    const { addTimer, editTimer } = useTimerStore();
+    const { timers, addTimer, editTimer } = useTimerStore();
 
     useEffect(() => {
         if (isOpen && timer) {
@@ -48,7 +48,21 @@ export const TimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose, timer }
             return;
         };
 
+        const trimmedTitle = title.trim();
         const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+        const isDuplicate = timers.some(t => t.title.toLowerCase() === trimmedTitle.toLowerCase() && t.id !== timer?.id);
+
+        if (isDuplicate) {
+            toast.error(`A timer with the title "${trimmedTitle}" already exists!`, {
+                duration: 5000,
+                action: {
+                    label: 'Dismiss',
+                    onClick: () => { },
+                },
+            });
+            return;
+        }
+
         if (isEdit && timer) {
             editTimer(timer.id, { title: title.trim(), description: description.trim(), duration: totalSeconds });
             toast.success(`${title} Updated`, {
