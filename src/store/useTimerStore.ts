@@ -51,10 +51,34 @@ const timerSlice = createSlice({
   },
 });
 
+const loadState = (): { timers: Timer[] } => {
+  try {
+    const serializedState = localStorage.getItem("timersState");
+    return serializedState ? JSON.parse(serializedState) : { timers: [] };
+  } catch (error) {
+    console.error("Error loading state:", error);
+    return { timers: [] };
+  }
+};
+
+const saveState = (state: { timers: Timer[] }) => {
+  try {
+    localStorage.setItem("timersState", JSON.stringify(state));
+  } catch (error) {
+    console.error("Error saving state:", error);
+  }
+};
+
+
 const store = configureStore({
   reducer: timerSlice.reducer,
+  preloadedState: loadState(),
 });
 
+store.subscribe(() => {
+  saveState(store.getState());
+});
+  
 export { store };
 
 export const {
