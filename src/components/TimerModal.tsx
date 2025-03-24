@@ -3,6 +3,7 @@ import { X, Clock } from 'lucide-react';
 import { useTimerStore } from '../store/useTimerStore';
 import { validateTimerForm } from '../utils/validation';
 import { Timer } from '../types/timer';
+import { toast } from 'sonner';
 
 interface TimerModalProps {
     isOpen: boolean;
@@ -42,13 +43,29 @@ export const TimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose, timer }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validateTimerForm({ title, description, hours, minutes, seconds })) return;
+        if (!validateTimerForm({ title, description, hours, minutes, seconds })) {
+            return;
+        };
 
         const totalSeconds = hours * 3600 + minutes * 60 + seconds;
         if (isEdit && timer) {
             editTimer(timer.id, { title: title.trim(), description: description.trim(), duration: totalSeconds });
+            toast.success(`${title} Updated`, {
+                duration: 5000,
+                action: {
+                    label: 'Dismiss',
+                    onClick: () => { },
+                },
+            });
         } else {
             addTimer({ title: title.trim(), description: description.trim(), duration: totalSeconds, remainingTime: totalSeconds, isRunning: false });
+            toast.success(`${title} Added`, {
+                duration: 5000,
+                action: {
+                    label: 'Dismiss',
+                    onClick: () => { },
+                },
+            });
         }
 
         onClose();
@@ -112,7 +129,7 @@ export const TimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose, timer }
 
                     <div className="flex justify-end gap-3 pt-4 border-t">
                         <button type="button" onClick={handleClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">Cancel</button>
-                        <button type="submit" className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${isTitleValid && isTimeValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-400 cursor-not-allowed'}`} disabled={!isTitleValid || !isTimeValid}>{isEdit ? 'Save Changes' : 'Add Timer'}</button>
+                        <button type="submit" className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors bg-blue-600 hover:bg-blue-700'`} >{isEdit ? 'Save Changes' : 'Add Timer'}</button>
                     </div>
                 </form>
             </div>
