@@ -18,7 +18,7 @@ Make sure you have Node.js installed.
 1. Clone the repository:
    ```sh
    git clone https://github.com/Adharshl/CW-timer.git
-   cd timer
+   cd CW-timer
    ```
 
 2. Install dependencies:
