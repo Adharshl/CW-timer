@@ -25,19 +25,6 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
     if (timer.isRunning && !intervalRefs.current.has(timer.id)) {
       const intervalId = window.setInterval(() => {
         updateTimer(timer.id);
-
-        if (timer.remainingTime <= 1 && !hasEndedRef.current) {
-          hasEndedRef.current = true;
-          timerAudio.play().catch(console.error);
-
-          toast.success(`Timer "${timer.title}" has ended!`, {
-            duration: 5000,
-            action: {
-              label: 'Dismiss',
-              onClick: () => timerAudio.stop(),
-            },
-          });
-        }
       }, 1000);
 
       intervalRefs.current.set(timer.id, intervalId);
@@ -50,7 +37,24 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
         intervalRefs.current.delete(timer.id);
       }
     };
-  }, [timer.isRunning, timer.id]);  // **Remove timer.remainingTime from dependencies**
+  }, [timer.isRunning, timer.id]);
+
+  useEffect(() => {
+    if (timer.remainingTime === 0 && !hasEndedRef.current) {
+      const isMobile = window.innerWidth <= 768;
+      hasEndedRef.current = true;
+      timerAudio.play().catch(console.error);
+
+      toast.success(`Timer "${timer.title}" has ended!`, {
+        duration: Infinity,
+        position: isMobile ? 'bottom-right' : 'top-right', // Dynamic position
+        action: {
+          label: 'Dismiss',
+          onClick: () => timerAudio.stop(),
+        },
+      });
+    }
+  }, [timer.remainingTime]);
 
   const handleRestart = () => {
     hasEndedRef.current = false;
@@ -96,6 +100,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
                 onClick={() => setIsEditModalOpen(true)}
                 variant='secondary'
                 tooltip="Edit Timer"
+                disabled={timer.isRunning}
               />
               <Button
                 label={<RotateCcw className="w-5 h-5" />}
